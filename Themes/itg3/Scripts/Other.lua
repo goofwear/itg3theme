@@ -1,45 +1,53 @@
 -- Override these in other themes.
-function SongModifiers()
+function PlayerOptionsMods()
 	if OPENITG then
 		if GAMESTATE:GetPlayMode() == PLAY_MODE_REGULAR then
-			return SpeedLines() .. "2,3,4,5,6,701,702,8," .. (not GAMESTATE:PlayerUsingBothSides() and "9," or "") .. "10,11,12,13,14,151,16,17,18,19,21,22,23,99" --OpenITG Normal Gameplay
-
+			return "101,102,103,2,3,4,5,6,20,51,99,100" --OpenITG Normal Gameplay	
 		elseif GAMESTATE:GetPlayMode() == PLAY_MODE_NONSTOP then
-			return SpeedLines() .. "2,3,4,5,6,701,702,8," .. (not GAMESTATE:PlayerUsingBothSides() and "9," or "") .. "10,11,12,13,14,151,16,17,18,20,21,22,23,99" --OpenITG Marathon Gameplay
-
+			return "101,102,103,2,3,4,5,6,20,52,99,100" --OpenITG Marathon Gameplay
 		elseif GAMESTATE:GetPlayMode() == PLAY_MODE_RAVE then
-			return "101,2,3,4,999" --OpenITG Battle Gameplay
-
+			return "101,102,103,2,3,4,999" --OpenITG Battle Gameplay
 		else
-			return "101,2,99" --OpenITG Survival/Fallback Gameplay
+			return "101,102,103,2,99" --OpenITG Survival/Fallback Gameplay
 		end
 	end
 
 	if GAMESTATE:GetPlayMode() == PLAY_MODE_REGULAR then
-		return SpeedLines() .. "2,3,4,5,6,7,8," ..(not GAMESTATE:PlayerUsingBothSides() and "9," or "").. "10,11,12,13,14,15,16,17,18,22,23,99" --Normal Gameplay
-
+		return "101,102,103,2,3,4,5,6,20,99,100" --Normal Gameplay
 	elseif GAMESTATE:GetPlayMode() == PLAY_MODE_NONSTOP then
-		return SpeedLines() .. "2,3,4,5,6,7,8," ..(not GAMESTATE:PlayerUsingBothSides() and "9," or "").. "10,11,12,13,14,15,16,17,18,20,22,23,99" --Marathon Gameplay
-	
+		return "101,102,103,2,3,4,5,6,20,52,99,100" --Marathon Gameplay
 	elseif GAMESTATE:GetPlayMode() == PLAY_MODE_RAVE then
-		return "101,2,3,4,999" --Battle Gameplay
-
+		return "101,102,103,2,3,4,999" --Battle Gameplay
 	else
-		return SpeedLines() .. "2,99" --OpenITG Survival/Fallback Gameplay
+		return "101,102,103,2,99" --Survival/Fallback Gameplay (We should never get here!)
 	end
 
 	return "1,2,99" --Global Fallback (We should never get here!)
 end
 
-function SongEditModifiers()
-	return SpeedLines() .. "2,3,4,5,6,7,8,9,10"
-end
+function SongOptionsMods()
+	if OPENITG then
+		if GAMESTATE:GetPlayMode() == PLAY_MODE_REGULAR then
+			return (not GAMESTATE:PlayerUsingBothSides() and "7," or "") .. "8,9,10,110,12,13,14,15,16,100" --OpenITG Normal Gameplay			
+		elseif GAMESTATE:GetPlayMode() == PLAY_MODE_NONSTOP then
+			return (not GAMESTATE:PlayerUsingBothSides() and "7," or "") .. "8,9,10,110,12,13,14,15,16,100" --OpenITG Marathon Gameplay
+		elseif GAMESTATE:GetPlayMode() == PLAY_MODE_RAVE then
+			return "1,2,99" --OpenITG Battle Gameplay (We should never get here!)
+		else
+			return "1,2,99" --OpenITG Survival/Fallback Gameplay (We should never get here!)
+		end
+	end
 
-function oitgACoptions()
-	if OPENITG then return "1,2,3,50,51,52,4,5,6,120,7,8,113,32,46,53" end
-	return "1,2,3,50,51,4,5,6,7,8,114,113,32,46,47,53"
+	if GAMESTATE:GetPlayMode() == PLAY_MODE_REGULAR then
+		return (not GAMESTATE:PlayerUsingBothSides() and "7," or "") .. "8,9,10,11,12,13,14,15,100" -- Normal Gameplay
+	elseif GAMESTATE:GetPlayMode() == PLAY_MODE_NONSTOP then
+		return (not GAMESTATE:PlayerUsingBothSides() and "7," or "") .. "8,9,10,11,12,13,14,15,100" --Marathon Gameplay
+	else
+		return "1,2,99" --OpenITG Survival/Fallback Gameplay (We should never get here!)
+	end
+	
+	return "1,2,99" --Global Fallback (We should never get here!)
 end
-
 
 function Platform() return "arcade" end
 
@@ -1094,8 +1102,8 @@ elseif CustomMods[pn].spin then if t == "" then t = "Spin Right" else t = t .. "
 elseif CustomMods[pn].vibrate then if t == "" then t = "Vibrate" else t = t .. ", Vibrate" end end
 
 if CustomMods[pn].dark == 0.5 then if t == "" then t = "Dark Filter" else t = t .. ", Dark Filter" end end
-if CustomMods[pn].dark == 0.65 then if t == "" then t = "Darker Filter" else t = t .. ", Darker Filter" end end
-if CustomMods[pn].dark == 0.85 then if t == "" then t = "Darkest Filter" else t = t .. ", Darkest Filter" end end
+if CustomMods[pn].dark == 0.75 then if t == "" then t = "Darker Filter" else t = t .. ", Darker Filter" end end
+if CustomMods[pn].dark == 0.95 then if t == "" then t = "Darkest Filter" else t = t .. ", Darkest Filter" end end
 
 if GetRateMod() ~= '' then if t == "" then t = GetRateMod() else t = t .. ", " .. GetRateMod() end end
 
@@ -1214,20 +1222,12 @@ function SpeedMods(name)
 			end
 			p = pn+1
 			if name == "Type" then modType[p] = s end
-			if name == "Base" then modBase[p] = s
-				if GetSpeedModType() ~= "pro" then
-					if string.find(modBase[p],"x") then modBase[p] = string.gsub(modBase[p], "x", ""); modType[p] = 'x-mod' end
-					if string.find(modBase[p],"c") then modBase[p] = string.gsub(modBase[p], "c", ""); modType[p] = 'c-mod' end
-					if string.find(modBase[p],"m") then modBase[p] = string.gsub(modBase[p], "m", ""); modType[p] = 'm-mod' end
-				end
-			end
+			if name == "Base" then modBase[p] = s end
 			if name == "Extra" then modExtra[p] = s end
 
 			if modType[p] == 'x-mod' then modSpeed[p] = modBase[p] + modExtra[p] .. 'x' end
 			if modType[p] == 'c-mod' then modSpeed[p] = 'c' .. modBase[p]*100 + modExtra[p]*100 end
-			if modType[p] == 'c-mod' and GetSpeedModType() ~= "pro" then modSpeed[p] = 'c' .. modBase[p] end
 			if modType[p] == 'm-mod' then modSpeed[p] = 'm' .. modBase[p]*100 + modExtra[p]*100 end
-			if modType[p] == 'm-mod' and GetSpeedModType() ~= "pro" then modSpeed[p] = 'm' .. modBase[p] end
 			GAMESTATE:ApplyGameCommand('mod,1x',p)
 			ApplyRateAdjust()
 			MESSAGEMAN:Broadcast('SpeedModChanged')
@@ -1237,19 +1237,10 @@ function SpeedMods(name)
 	return t
 end
 
-function SpeedLines()
-	local type = GetSpeedModType()
-	if type == "pro" then
-	return "101,102,103,"
-	else
-	return "101,"
-	end
-end
-
 modRate = 1
 bpm = { "1", "2", "3" }
 rateGameplay = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "2.0" }
-rateEdit = { "0.5", "0.6", "0.7", "0.8", "0.9", "1.0", "1.1", "1.2", "1.3", "1.4", "1.5" }
+rateEdit = { "0.5", "0.6", "0.7", "0.8", "0.9", "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "2.0" }
 
 function RateMods(name)
 	local modList = rateMods
@@ -1289,26 +1280,8 @@ function InitializeSpeedMods()
 	modType = { "x-mod", "x-mod" }
 	modSpeed = { "1.5x", "1.5x" }
 	
-	if GetSpeedModType() == "pro" then
-	baseSpeed = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16" }
+	baseSpeed = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19" }
 	extraSpeed = { "0", "+.25", "+.5", "+.75", "+.1", "+.2", "+.3", "+.4", "+.6", "+.7", "+.8", "+.9" }
-	end
-	
-	if GetSpeedModType() == "advanced" then
-		if OPENITG then baseSpeed = { "0.25x", "0.5x", "0.75x", "1x", "1.25x", "1.5x", "1.75x", "2x", "2.25x", "2.5x", "2.75x", "3x", "3.25x", "3.5x", "3.75x", "4x", "4.25x", "4.5x", "4.75x", "5x", "5.25x", "5.5x", "5.75x", "6x", "6.25x", "6.5x", "6.75x", "7x", "c400", "c425", "c450", "c475", "c500", "c525", "c550", "c575", "c600", "c625", "c650", "c675", "c700", "c725", "c750", "c775", "c800", "c825", "c850", "c875", "c900", "c925", "c950", "c975", "c1000", "m400", "m425", "m450", "m475", "m500", "m525", "m550", "m575", "m600", "m625", "m650", "m675", "m700", "m725", "m750", "m775", "m800", "m825", "m850", "m875", "m900", "m925", "m950", "m975", "m1000" }
-		else  baseSpeed = { "0.25x", "0.5x", "0.75x", "1x", "1.25x", "1.5x", "1.75x", "2x", "2.25x", "2.5x", "2.75x", "3x", "3.25x", "3.5x", "3.75x", "4x", "4.25x", "4.5x", "4.75x", "5x", "5.25x", "5.5x", "5.75x", "6x", "6.25x", "6.5x", "6.75x", "7x", "c400", "c425", "c450", "c475", "c500", "c525", "c550", "c575", "c600", "c625", "c650", "c675", "c700", "c725", "c750", "c775", "c800", "c825", "c850", "c875", "c900", "c925", "c950", "c975", "c1000" }
-		end
-	extraSpeed = { "0" }
-	modExtra = { "0", "0" }
-	end
-
-	if GetSpeedModType() == "basic" then
-		if OPENITG then baseSpeed = { "1x", "1.5x", "2x", "2.5x", "3x", "3.5x", "4x", "4.5x", "5x", "6x", "c450", "m450" }
-		else baseSpeed = { "1x", "1.5x", "2x", "2.5x", "3x", "3.5x", "4x", "4.5x", "5x", "5.5x", "6x", "c450" }
-		end
-	extraSpeed = { "0" }
-	modExtra = { "0", "0" }
-	end
 	
 	if OPENITG then
 	typeSpeed = { "x-mod", "c-mod", "m-mod" }
@@ -1337,7 +1310,7 @@ end
 
 function DisplaySpeedMod(pn)
 	local s = modSpeed[pn]
-	if modType[pn] == "x-mod" and GetSpeedModType() == "pro" then
+	if modType[pn] == "x-mod" then
 		if modExtra[pn] == "0" then
 		s = modBase[pn] + modExtra[pn] .. ".00" .. "x"
 		end
@@ -1434,54 +1407,31 @@ function DisplayBPM(pn)
 	end
 
 	if modType[pn] == "c-mod" or modType[pn] == "m-mod" then
-	return speedMod
+	return speedMod * modRate
 	end
 
 	return "???"
 end
 
-function BackButton()
-	local modList = {'Return to Music Selection'}
-	local t = {
-		Name = "BackButton",
-		LayoutType = "ShowAllInRow",
-		SelectType = "SelectMultiple",
-		OneChoiceForAllPlayers = GAMESTATE:IsPlayerEnabled(PLAYER_1),
-		ExportOnChange = false,
-		Choices = modList,
-		LoadSelections = function(self, list, pn) end,
-		SaveSelections = function(self, list, pn) if list[1] and (ScreenSelectMusicTimer > 5) and (ScreenPlayerOptionsTimer > 5) then SCREENMAN:SetNewScreen('ScreenSelectMusic2') else if list[1] then SCREENMAN:SystemMessage('Not Enough Time Left to Go Back!') end end end
-	}
-	setmetatable(t, t)
-	return t
-end
-
 function GetTimer(screen)
-	if ScreenSelectMusicTimer == nil then
-		ScreenSelectMusicTimer = DefaultSSM;
-	end
-	
-	if ScreenPlayerOptionsTimer == nil then
-		ScreenPlayerOptionsTimer = DefaultSPO;
-	end
-	
 	if screen == "ScreenEvaluation" then
-		ScreenSelectMusicTimer = DefaultSSM;
-		ScreenPlayerOptionsTimer = DefaultSPO;
-		ScreenEvaluationTimer = 30;
-		return math.ceil(ScreenEvaluationTimer)
+		-- reset the timers at the end of each round.
+		ScreenSelectMusicTimer = GetMusicSelectTime();
+		ScreenPlayerOptionsTimer = GetOptionsSelectTime();
+		
+		return GetEvaluationScreenTime();
 	end
 	
 	if screen == "ScreenSelectMusic" then
 		if ScreenSelectMusicTimer == nil then
-			ScreenSelectMusicTimer = DefaultSSM;
+			ScreenSelectMusicTimer = GetMusicSelectTime();
 		end
 	return math.ceil(ScreenSelectMusicTimer)
 	end
 	
 	if screen == "ScreenPlayerOptions" then
 		if ScreenPlayerOptionsTimer == nil then
-			ScreenPlayerOptionsTimer = DefaultSPO;
+			ScreenPlayerOptionsTimer = GetOptionsSelectTime();
 		end
 	return math.ceil(ScreenPlayerOptionsTimer)
 	end

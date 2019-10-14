@@ -10,10 +10,8 @@ function GetArcadeStartScreen()
 	return "ScreenCompany"
 end
 function ScreenTitleBranch()
-	DefaultSSM = 90.1;
-	DefaultSPO = 35.1;
-	ScreenSelectMusicTimer = DefaultSSM;
-	ScreenPlayerOptionsTimer = DefaultSPO;
+	ScreenSelectMusicTimer = GetMusicSelectTime();
+	ScreenPlayerOptionsTimer = GetOptionsSelectTime();
 	if GAMESTATE:GetCoinMode() == COIN_MODE_HOME then return "ScreenTitleMenu" end
 	if GAMESTATE:IsEventMode() then return "ScreenEventMenu" end
 	return TitleScreen();
@@ -33,14 +31,15 @@ function EvaluationNextScreen()
 	Trace( " IsEventMode = "..tostring(GAMESTATE:IsEventMode()) )
 	Trace( " IsFinalStage = "..tostring(IsFinalStage()) )
 	if GAMESTATE:IsEventMode() then return NewSongScreen() end
-	if AllFailed() or IsFinalStage() then return "ScreenNameEntryTraditional" end
+	if AllFailed() or IsFinalStage() or GAMESTATE:IsExtraStage() then return "ScreenNameEntryTraditional" end
 	return NewSongScreen();
 end
 
 function ScreenCleaning()
-	if Hour() >= GetCleanStartTime() and Hour() < GetCleanEndTime() and GetCleanScreen() == true then
-	return "ScreenNoise" end
-	
+	if GetCleanScreen() == true then
+		if Hour() >= GetCleanStartTime() and Hour() < GetCleanEndTime() then
+		return "ScreenNoise" end
+	end
 	return "ScreenCompany"
 end
 
@@ -75,11 +74,15 @@ function GetGameplayNextScreen()
 end
 
 function SelectEndingScreen()
-	if GAMESTATE:GetEnv("ForcePerfectEnding") == "1" or GetBestFinalGrade() <= GRADE_TIER01 then return "ScreenEndingPerfect" end
-	if GAMESTATE:GetEnv("ForceGoodEnding") == "1" or GetBestFinalGrade() <= GRADE_TIER04 then return "ScreenEndingGood" end
-	if GAMESTATE:GetEnv("ForceOkayEnding") == "1" or GetBestFinalGrade() <= GRADE_TIER07 then return "ScreenEndingOkay" end
-
+	if GAMESTATE:GetEnv("ForcePerfectEnding") == "1" or GetBestFinalGrade() <= GRADE_TIER01 then
+	return "ScreenEndingPerfect"
+	elseif GAMESTATE:GetEnv("ForceGoodEnding") == "1" or GetBestFinalGrade() <= GRADE_TIER04 then
+	return "ScreenEndingGood"
+	elseif GAMESTATE:GetEnv("ForceOkayEnding") == "1" or GetBestFinalGrade() <= GRADE_TIER07 then
+	return "ScreenEndingOkay"
+	else
 	return "ScreenEndingNormal"
+	end
 end
 
 function ScreenAfterGameplayWorkout()
@@ -136,7 +139,6 @@ return "ScreenTitleJoin"
 end
 
 function OptionsMenuAvailable()
-	if GAMESTATE:IsExtraStage() or GAMESTATE:IsExtraStage2() then return false end
 	if GAMESTATE:GetPlayMode()==PLAY_MODE_ONI then return false end
 	return true
 end

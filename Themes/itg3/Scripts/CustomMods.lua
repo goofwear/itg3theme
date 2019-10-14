@@ -5,8 +5,8 @@ CustomMods = {}
 -- Since tables can only be assigned by reference in Lua, we must explicitly
 -- define defaults for each player.
 function ResetCustomMods()
-	CustomMods[PLAYER_1] = { hidescore = false, hidecombo = false, hidelife = false, showstats = false, showmods = false, normal = true, left = false, right = false, upsidedown = false, solo = false, vibrate = false, spin = false, spinreverse = false, bob = false, pulse = false, wag = false, dark = 0 }
-	CustomMods[PLAYER_2] = { hidescore = false, hidecombo = false, hidelife = false, showstats = false, showmods = false, normal = true, left = false, right = false, upsidedown = false, solo = false, vibrate = false, spin = false, spinreverse = false, bob = false, pulse = false, wag = false, dark = 0 }
+	CustomMods[PLAYER_1] = { hidescore = false, hidecombo = false, hidelife = false, showstats = false, showmods = false, judgmentposition = false, normal = true, left = false, right = false, upsidedown = false, solo = false, vibrate = false, spin = false, spinreverse = false, bob = false, pulse = false, wag = false, dark = 0, judgment = "ITG3" }
+	CustomMods[PLAYER_2] = { hidescore = false, hidecombo = false, hidelife = false, showstats = false, showmods = false, judgmentposition = false, normal = true, left = false, right = false, upsidedown = false, solo = false, vibrate = false, spin = false, spinreverse = false, bob = false, pulse = false, wag = false, dark = 0, judgment = "ITG3" }
 end
 
 -- Do initial reset
@@ -43,20 +43,20 @@ end
 
 function OptionShowStats()
 	local t = {
-		Name = "IngameStats",
+		Name = "InGameStats",
 		LayoutType = "ShowAllInRow",
 		SelectType = "SelectMultiple",
 		OneChoiceForAllPlayers = false,
 		ExportOnChange = false,
-		Choices = { "Show Ingame Statistics" },
+		Choices = { "Show In-Game Statistics" },
 		
 		LoadSelections = function(self, list, pn)
 			--if GAMESTATE:StageIndex() == 0 then ResetCustomMods() end -- Reset if we're on the first stage
-			list[1] = CustomMods[pn].showstats -- Resets the option to be off  ingame bargraph
+			list[1] = CustomMods[pn].showstats -- Resets the in-game bargraph to be off
 		end,
 		
 		SaveSelections = function(self, list, pn)
-			CustomMods[pn].showstats = list[1] -- ingame bargraph
+			CustomMods[pn].showstats = list[1] -- in-game bargraph
 		end
 		
 	}
@@ -76,7 +76,7 @@ function OptionShowModifiers()
 		
 		LoadSelections = function(self, list, pn)
 			--if GAMESTATE:StageIndex() == 0 then ResetCustomMods() end -- Reset if we're on the first stage
-			list[1] = CustomMods[pn].showmods -- Resets the option to be off  ingame bargraph
+			list[1] = CustomMods[pn].showmods -- Resets the live course mods to be off
 		end,
 		
 		SaveSelections = function(self, list, pn)
@@ -88,6 +88,63 @@ function OptionShowModifiers()
 	return t
 end
 
+
+function OptionJudgmentPosition()
+	local t = {
+		Name = "JudgmentPosition",
+		LayoutType = "ShowAllInRow",
+		SelectType = "SelectMultiple",
+		OneChoiceForAllPlayers = false,
+		ExportOnChange = false,
+		Choices = { "Judgments Behind Arrows" },
+		
+		LoadSelections = function(self, list, pn)
+			--if GAMESTATE:StageIndex() == 0 then ResetCustomMods() end -- Reset if we're on the first stage
+			list[1] = CustomMods[pn].judgmentposition -- Resets the judgements in front of arrows
+		end,
+		
+		SaveSelections = function(self, list, pn)
+			CustomMods[pn].judgmentposition = list[1] -- judgments behind arrows
+		end
+		
+	}
+	setmetatable(t, t)
+	return t
+end
+
+
+function OptionNextScreen()
+	local t = {
+		Name = "NextScreen",
+		LayoutType = "ShowAllInRow",
+		SelectType = "SelectMultiple",
+		OneChoiceForAllPlayers = false,
+		ExportOnChange = false,
+		Choices = { 'Music Selection', 'More Options' },
+		
+		LoadSelections = function(self, list, pn)
+		end,
+		
+		SaveSelections = function(self, list, pn)
+			if ( ( list[1] or list[2] ) and ScreenPlayerOptionsTimer < 5 ) then
+			SCREENMAN:SystemMessage('Not Enough Time Left!')
+			elseif list[1] then SCREENMAN:SetNewScreen('ScreenSelectMusic2')
+			elseif list[2] then GetMoreOptionsScreen()
+			end
+		end
+	}
+	setmetatable(t, t)
+	return t
+end
+
+function GetMoreOptionsScreen()
+	--Give players a bit of buffer when switching between More Options.
+	ScreenPlayerOptionsTimer = (ScreenPlayerOptionsTimer + 5)
+	if ModsScreen == 'PlayerOptions' then
+	return SCREENMAN:SetNewScreen('ScreenSongOptions') else
+	return SCREENMAN:SetNewScreen('ScreenPlayerOptions')
+	end
+end
 
 function AvailableArrowDirections()
 
@@ -160,7 +217,7 @@ function OptionPlayfield()
 end
 
 
-function OptionsScreenFilter()
+function OptionScreenFilter()
 	local t = {
 		Name = "ScreenFilter",
 		LayoutType = "ShowAllInRow",
@@ -172,20 +229,80 @@ function OptionsScreenFilter()
 			--if GAMESTATE:StageIndex() == 0 then ResetCustomMods() end -- Reset if we're on the first stage
 			if CustomMods[pn].dark == 0 then list[1] = true 
 			elseif CustomMods[pn].dark == 0.5 then list[2] = true 
-			elseif CustomMods[pn].dark == 0.65 then list[3] = true 
-			elseif CustomMods[pn].dark == 0.85 then list[4] = true 
+			elseif CustomMods[pn].dark == 0.75 then list[3] = true 
+			elseif CustomMods[pn].dark == 0.95 then list[4] = true 
 			else list[1] = true end
 		end,
 		SaveSelections = function(self, list, pn)
 				if list [1] then CustomMods[pn].dark = 0 
 				elseif list [2] then CustomMods[pn].dark = 0.5 
-				elseif list [3] then CustomMods[pn].dark = 0.65
-				elseif list [4] then CustomMods[pn].dark = 0.85 
+				elseif list [3] then CustomMods[pn].dark = 0.75
+				elseif list [4] then CustomMods[pn].dark = 0.95 
 				else CustomMods[pn].dark = 0 end
 		end
 	}
 	setmetatable(t, t)
 	return t
+end
+
+
+function OptionJudgmentFont()
+	local t = {
+		Name = "JudgmentFont",
+		LayoutType = "ShowAllInRow",
+		SelectType = "SelectOne",
+		OneChoiceForAllPlayers = false,
+		ExportOnChange = false,
+		Choices = { "ITG 3", "ITG 2", "Love", "GrooveNights", "Chromatic", "Tactics" },
+		LoadSelections = function(self, list, pn)
+			--if GAMESTATE:StageIndex() == 0 then ResetCustomMods() end -- Reset if we're on the first stage
+			if CustomMods[pn].judgment == "ITG3" then list[1] = true
+			elseif CustomMods[pn].judgment == "ITG2" then list[2] = true
+			elseif CustomMods[pn].judgment == "Love" then list[3] = true
+			elseif CustomMods[pn].judgment == "GrooveNights" then list[4] = true
+			elseif CustomMods[pn].judgment == "Chromatic" then list[5] = true
+			elseif CustomMods[pn].judgment == "Tactics" then list[6] = true
+			else list[1] = true end
+		end,
+		SaveSelections = function(self, list, pn)
+				if list [1] then CustomMods[pn].judgment = "ITG3"
+				elseif list [2] then CustomMods[pn].judgment = "ITG2"
+				elseif list [3] then CustomMods[pn].judgment = "Love"
+				elseif list [4] then CustomMods[pn].judgment = "GrooveNights"
+				elseif list [5] then CustomMods[pn].judgment = "Chromatic"
+				elseif list [6] then CustomMods[pn].judgment = "Tactics"				
+				else CustomMods[pn].judgment = "ITG3" end
+		end
+	}
+	setmetatable(t, t)
+	return t
+end
+
+function GameplayInit(self)
+	self:queuecommand('FirstUpdate')
+end
+
+function Gameplay(self)
+	SetJudgmentFont()
+end
+
+function SetJudgmentFont()
+	if GAMESTATE:IsPlayerEnabled(PLAYER_1) and CustomMods[PLAYER_1].judgment ~= "ITG3" and GAMESTATE:GetCurrentSteps(PLAYER_1):GetDifficulty()~=DIFFICULTY_BEGINNER then
+		SCREENMAN:GetTopScreen():GetChild('PlayerP1'):GetChild('Judgment'):GetChild(''):Load( THEME:GetPath( EC_GRAPHICS, '', '_judgments/' .. CustomMods[PLAYER_1].judgment ))
+	end
+	if GAMESTATE:IsPlayerEnabled(PLAYER_2) and CustomMods[PLAYER_2].judgment ~= "ITG3" and GAMESTATE:GetCurrentSteps(PLAYER_2):GetDifficulty()~=DIFFICULTY_BEGINNER then
+		SCREENMAN:GetTopScreen():GetChild('PlayerP2'):GetChild('Judgment'):GetChild(''):Load( THEME:GetPath( EC_GRAPHICS, '', '_judgments/' .. CustomMods[PLAYER_2].judgment ))
+	end
+end
+
+function GetJudgmentPosition()
+	if (GAMESTATE:IsPlayerEnabled(PLAYER_1) and CustomMods[PLAYER_1].judgmentposition == true) or (GAMESTATE:IsPlayerEnabled(PLAYER_2) and CustomMods[PLAYER_2].judgmentposition == true) then return 1
+	else return 0 end
+end
+	
+-- Returns a players selected judgment font
+function GetJudgmentFont(pn)
+	return CustomMods[pn].judgment
 end
 
 -- Returns the screen darken mod
@@ -195,28 +312,22 @@ end
 
 -- Returns 1 if score is hidden, 0 otherwise; for use in metrics.ini.
 function IsScoreHidden(pn)
-	local ret = 0
-	
-	if CustomMods[pn].hidescore == true then ret = 1 end
-	return ret
+	if CustomMods[pn].hidescore == true then return 1 
+	else return 0 end
 end
 
 -- Returns 1 if life is hidden, 0 otherwise; for use in metrics.ini.
 function IsLifeHidden(pn)
-	local ret = 0
-	
-	if CustomMods[pn].hidelife == true then ret = 1 end
-	return ret
+	if CustomMods[pn].hidelife == true then return 1
+	else return 0 end
 end
 
 -- We can't use the 'hidden' command on a per-player basis for combo, so
 -- instead take advantage of the X combo offset.
 function GetComboXOffset(pn)
-	local ret = 0
-
 	-- Hide the Lifebar off to the side.
-	if CustomMods[pn].hidecombo == true then ret = "-SCREEN_WIDTH*2" end
-	return ret
+	if CustomMods[pn].hidecombo == true then return "-SCREEN_WIDTH*2"
+	else return 0 end
 end
 
 function GetJudgeXOffset(pn)
@@ -224,15 +335,13 @@ function GetJudgeXOffset(pn)
 end
 
 function ShowStats(pn)
-	local ret = 0
-	if CustomMods[pn].showstats == true then ret = 1 end
-	return ret
+	if CustomMods[pn].showstats == true then return 1
+	else return 0 end
 end
 
 function ShowCourseModifiers(pn)
-	local ret = 1
-	if CustomMods[pn].showmods == true then ret = 0 end
-	return ret
+	if CustomMods[pn].showmods == true then return 0
+	else return 1 end
 end
 
 function ResetBeginnerDisplay()

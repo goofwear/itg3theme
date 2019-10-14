@@ -1,8 +1,12 @@
 <ActorFrame> <children>
 
+<!--We lose a few seconds when players have to scroll down to the Back Button, so this gives it back to Players after they have entered SPO once.-->
+<ActorFrame Command="%function(self) if ScreenPlayerOptionsTimer ~= GetOptionsSelectTime() then ScreenPlayerOptionsTimer = ScreenPlayerOptionsTimer + 6.0 end end"/>
+
+
 <!--SSM Time Tracker-->
 <Layer Type="Quad"
-	InitCommand="sleep,0.01;queuecommand,SSMCountDown;"
+	InitCommand="sleep,0.1;queuecommand,SSMCountDown;"
 	SSMCountDownCommand="%function(self)
 		self:stoptweening();
 		ScreenSelectMusicTimer = ScreenSelectMusicTimer - 0.1;
@@ -24,8 +28,6 @@
 			if bpm[2] == bpm[1] then bpm[2] = '';
 			end
 		bpm[3] = SCREENMAN:GetTopScreen():GetChild('BPMDisplay'):GetChild('Text'):GetText();
-			if not OPENITG then bpm[3] = math.floor(bpm[3] * modRate + 0.5)
-			end
 		end"
 	CurrentSongChangedMessageCommand="queuecommand,BPMCapture"
 	CurrentStepsP1ChangedMessageCommand="queuecommand,BPMCapture"
